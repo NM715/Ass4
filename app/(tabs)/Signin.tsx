@@ -1,43 +1,30 @@
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
-import { useRouter } from "expo-router";
-import supabase from '@/components/supabase';
+import React, { useState } from 'react';
+import { View, TextInput, TouchableOpacity, Alert, StyleSheet, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import supabase from '@/components/supabase'; 
+import { RootParamList } from '../navigation/types'; 
 
+type SigninNavigationProp = StackNavigationProp<RootParamList, 'Signin'>;
 
-interface SigninProps {
-  setIsSignedIn: (signedIn: boolean) => void;
-  setUserDetails: (details: { firstName: string; lastName: string }) => void;
-}
-
-const Signin: React.FC<SigninProps> = ({ setIsSignedIn, setUserDetails }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const router = useRouter();
+const Signin = ({ setIsSignedIn, setUsername }: { 
+  setIsSignedIn: (value: boolean) => void;
+  setUsername: (value: string) => void;
+}) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigation = useNavigation<SigninNavigationProp>();
 
   const handleSignIn = async () => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
     if (error) {
-      Alert.alert("Error", error.message);
+      Alert.alert('Error', error.message);
     } else {
-      const { data: userData } = await supabase
-        .from('user_details')
-        .select('first_name, last_name')
-        .eq('uuid', data.user?.id)
-        .single();
-
-      setUserDetails({
-        firstName: userData?.first_name || '',
-        lastName: userData?.last_name || ''
-      });
       setIsSignedIn(true);
-      router.replace('/');
+      setUsername(data.user?.email || '');
     }
   };
-  
 
   return (
     <View style={styles.container}>
@@ -47,23 +34,24 @@ const Signin: React.FC<SigninProps> = ({ setIsSignedIn, setUserDetails }) => {
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
+        keyboardType="email-address"
         autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
-        secureTextEntry
         value={password}
         onChangeText={setPassword}
+        secureTextEntry
       />
       <TouchableOpacity style={styles.button} onPress={handleSignIn}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.button, styles.signupButton]}
-        onPress={() => router.push('/Signup')}
+        onPress={() => navigation.navigate('Signup')}
       >
-        <Text style={styles.buttonText}>Create Account</Text>
+        <Text style={styles.buttonText}>Go to Sign Up</Text>
       </TouchableOpacity>
     </View>
   );
@@ -96,13 +84,13 @@ const styles = StyleSheet.create({
   button: {
     width: '95%',
     padding: 15,
-    backgroundColor: '#2196F3',
+    backgroundColor: '#4CAF50',
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
   },
   signupButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#2196F3',
   },
   buttonText: {
     color: '#fff',

@@ -1,14 +1,15 @@
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { useState, useEffect } from 'react';
-import IndexScreen from './(tabs)';
-import Signup from './(tabs)/Signup';
 import Signin from './(tabs)/Signin';
+import Signup from './(tabs)/Signup';
+import IndexScreen from './(tabs)';
 import supabase from '@/components/supabase';
+import { ActivityIndicator, View } from 'react-native';
 
 const Stack = createStackNavigator();
 
-export default function App() {
+const App = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userDetails, setUserDetails] = useState<{
     firstName: string;
@@ -18,9 +19,8 @@ export default function App() {
 
   useEffect(() => {
     const checkSession = async () => {
-      setIsLoading(true);
+      setIsLoading(true); 
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (user) {
         const { data: userData } = await supabase
           .from('user_details')
@@ -28,51 +28,56 @@ export default function App() {
           .eq('uuid', user.id)
           .single();
 
-        setUserDetails({
-          firstName: userData?.first_name || '',
-          lastName: userData?.last_name || ''
-        });
-        setIsSignedIn(true);
+        if (userData) {
+          setUserDetails({
+            firstName: userData.first_name || '',
+            lastName: userData.last_name || '',
+          });
+          setIsSignedIn(true);
+        }
       } else {
-        
-        setUserDetails({ firstName: 'Guest', lastName: 'User' });
+        setUserDetails(null);
+        setIsSignedIn(false);
       }
-      setIsLoading(false);
+      setIsLoading(false); 
     };
-    
+
     checkSession();
   }, []);
 
   if (isLoading) {
-    return null; 
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#2196F3" />
+      </View>
+    );
   }
 
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        
         <Stack.Screen name="Home" options={{ headerShown: false }}>
           {() => (
-            <IndexScreen 
+            <IndexScreen
               userDetails={userDetails}
               setIsSignedIn={setIsSignedIn}
               setUserDetails={setUserDetails}
             />
           )}
         </Stack.Screen>
-
-       
         <Stack.Screen 
-          name="SignIn" 
+          name="Signin" 
           component={Signin} 
           options={{ headerShown: false }}
         />
         <Stack.Screen 
-          name="SignUp" 
+          name="Signup" 
           component={Signup} 
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
+
+export default App;

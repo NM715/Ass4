@@ -1,14 +1,16 @@
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import React, { useState } from "react";
-import { useRouter } from "expo-router";
-import supabase from '@/components/supabase';
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import supabase from "@/components/supabase";
+import { RootParamList } from "../navigation/types";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
+  const navigation = useNavigation<StackNavigationProp<RootParamList, 'Signup'>>();
 
   const handleSignUp = async () => {
     const { data, error } = await supabase.auth.signUp({
@@ -32,7 +34,7 @@ const Signup = () => {
         Alert.alert("Error", insertError.message);
       } else {
         Alert.alert("Success", "Account created! Please sign in");
-        router.replace('/Signin');
+        navigation.replace("Signin");
       }
     }
   };

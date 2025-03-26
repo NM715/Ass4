@@ -1,27 +1,18 @@
-import { StyleSheet, Pressable, SafeAreaView, ScrollView } from 'react-native';
+import React from 'react';
+import { SafeAreaView, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
 import supabase from '@/components/supabase';
-import { useEffect, useState } from 'react';
+import { RootParamList } from '../navigation/types';
 
-const IndexScreen = ({ userDetails, setIsSignedIn, setUserDetails }) => {
-  const navigation = useNavigation();
-  const [localUsername, setLocalUsername] = useState('');
-
-  useEffect(() => {
-    if (userDetails) {
-      setLocalUsername(`${userDetails.firstName} ${userDetails.lastName}`);
-    }
-  }, [userDetails]);
+const IndexScreen = ({ route }: { route: any }) => {
+  const navigation = useNavigation<NavigationProp<RootParamList>>();
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      setIsSignedIn(false);
-      setUserDetails(null);
-      navigation.navigate('Home');
-    }
+    await supabase.auth.signOut();
+    route.params?.setIsSignedIn(false);
   };
 
   return (
@@ -29,30 +20,14 @@ const IndexScreen = ({ userDetails, setIsSignedIn, setUserDetails }) => {
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
         <ThemedView style={styles.landingContainer}>
           <ThemedText type="title" style={styles.welcomeText}>
-            {userDetails ? `Welcome, ${localUsername}!` : 'Welcome Guest!'}
+            Welcome User!
           </ThemedText>
-
-          {userDetails ? (
-            <Pressable
-              style={({ pressed }) => [
-                styles.button,
-                pressed && styles.buttonPressed,
-              ]}
-              onPress={handleLogout}
-            >
-              <ThemedText style={styles.buttonText}>Sign Out</ThemedText>
-            </Pressable>
-          ) : (
-            <Pressable
-              style={({ pressed }) => [
-                styles.button,
-                pressed && styles.buttonPressed,
-              ]}
-              onPress={() => navigation.navigate('./SignIn')}
-            >
-              <ThemedText style={styles.buttonText}>Sign In</ThemedText>
-            </Pressable>
-          )}
+          <Pressable
+            style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+            onPress={handleLogout}
+          >
+            <ThemedText style={styles.buttonText}>Sign Out</ThemedText>
+          </Pressable>
         </ThemedView>
       </ScrollView>
     </SafeAreaView>
@@ -93,7 +68,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   buttonText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
   },
