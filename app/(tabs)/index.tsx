@@ -48,7 +48,7 @@ const IndexScreen = ({ userDetails, setIsSignedIn, setUserDetails }) => {
                 styles.button,
                 pressed && styles.buttonPressed,
               ]}
-              onPress={() => navigation.navigate('SignIn')}
+              onPress={() => navigation.navigate('./SignIn')}
             >
               <ThemedText style={styles.buttonText}>Sign In</ThemedText>
             </Pressable>

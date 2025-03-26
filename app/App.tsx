@@ -34,7 +34,7 @@ export default function App() {
         });
         setIsSignedIn(true);
       } else {
-        // Set guest user details immediately
+        
         setUserDetails({ firstName: 'Guest', lastName: 'User' });
       }
       setIsLoading(false);
@@ -44,13 +44,13 @@ export default function App() {
   }, []);
 
   if (isLoading) {
-    return null; // Show loading indicator here if desired
+    return null; 
   }
 
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {/* Always keep Home screen available */}
+        
         <Stack.Screen name="Home" options={{ headerShown: false }}>
           {() => (
             <IndexScreen 
@@ -61,7 +61,7 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        {/* Auth screens */}
+       
         <Stack.Screen 
           name="SignIn" 
           component={Signin} 
